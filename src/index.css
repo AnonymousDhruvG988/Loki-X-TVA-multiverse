@@ -1,0 +1,250 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-tva-bg: #0A0A0C;
+  --color-tva-amber: #F5A623;
+  --color-tva-orange: #FF6B00;
+  --color-tva-bone: #E8E2D0;
+  --color-tva-green: #2A3A2C;
+}
+
+/* SECTION 31 & 32: FUTURISTIC TVA SCROLLBAR */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050706;
+  border-left: 1px solid rgba(23, 63, 50, 0.6);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.8);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #173F32 0%, #7FCF8A 50%, #F5A623 100%);
+  border: 2px solid #050706;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(127, 207, 138, 0.4);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #7FCF8A 0%, #FFB52E 100%);
+  box-shadow: 0 0 16px rgba(245, 166, 35, 0.7);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #7FCF8A #050706;
+}
+
+/* SECTION 28: STRICT STACKING ARCHITECTURE */
+.layer-background { z-index: 0; }
+.layer-atmosphere { z-index: 1; }
+.layer-timeline   { z-index: 2; }
+.layer-character  { z-index: 3; }
+.layer-content    { z-index: 10; }
+.layer-form       { z-index: 20; }
+.layer-nav        { z-index: 100; }
+.layer-modals     { z-index: 1000; }
+
+/* CRT Scanlines Overlay */
+.crt-scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.02),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.02)
+  );
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+}
+
+/* Archival Noise Overlay */
+.tva-noise {
+  background-image: radial-gradient(rgba(245, 166, 35, 0.04) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Bureaucratic Sprocket Border */
+.sprocket-border {
+  border-left: 2px dashed rgba(245, 166, 35, 0.3);
+  border-right: 2px dashed rgba(245, 166, 35, 0.3);
+}
+
+/* Classified Redaction Bar */
+.redaction-bar {
+  background-color: #111116;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+
+.redaction-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 4px,
+    rgba(245, 166, 35, 0.08) 4px,
+    rgba(245, 166, 35, 0.08) 8px
+  );
+}
+
+/* TVA Dossier Stamp */
+.tva-stamp {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 0.2rem 0.6rem;
+  border: 1.5px solid currentColor;
+  transform: rotate(-3deg);
+  mask-image: radial-gradient(circle, black 80%, rgba(0,0,0,0.6) 100%);
+  user-select: none;
+}
+
+.tva-stamp-red {
+  color: #FF3366;
+  border-color: #FF3366;
+  box-shadow: 0 0 10px rgba(255, 51, 102, 0.25);
+}
+
+.tva-stamp-amber {
+  color: #F5A623;
+  border-color: #F5A623;
+  box-shadow: 0 0 10px rgba(245, 166, 35, 0.25);
+}
+
+.tva-stamp-green {
+  color: #538662;
+  border-color: #538662;
+  box-shadow: 0 0 10px rgba(83, 134, 98, 0.25);
+}
+
+/* Subtle glowing pulse */
+@keyframes temporalGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 6px rgba(245, 166, 35, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(245, 166, 35, 0.6));
+  }
+}
+
+.animate-temporal-glow {
+  animation: temporalGlow 4s ease-in-out infinite;
+}
+
+/* Glitch Chromatic Aberration Text Effect */
+.glitch-text {
+  position: relative;
+}
+
+.glitch-text:hover::before,
+.glitch-text:hover::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  clip: rect(0, 0, 0, 0);
+}
+
+.glitch-text:hover::before {
+  left: -2px;
+  text-shadow: 1px 0 #FF3366;
+  animation: glitch-anim-1 0.4s infinite linear alternate-reverse;
+}
+
+.glitch-text:hover::after {
+  left: 2px;
+  text-shadow: -1px 0 #00F0FF;
+  animation: glitch-anim-2 0.4s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-1 {
+  0% { clip: rect(10px, 9999px, 44px, 0); }
+  50% { clip: rect(60px, 9999px, 80px, 0); }
+  100% { clip: rect(20px, 9999px, 30px, 0); }
+}
+
+@keyframes glitch-anim-2 {
+  0% { clip: rect(50px, 9999px, 70px, 0); }
+  50% { clip: rect(15px, 9999px, 35px, 0); }
+  100% { clip: rect(75px, 9999px, 95px, 0); }
+}
+
+/* Glitch Mode (39.3 Temporal System Instability) */
+.temporal-glitch-mode {
+  animation: screenJitter 0.12s infinite alternate;
+  filter: contrast(1.15) brightness(1.1);
+}
+
+.temporal-glitch-mode::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 51, 102, 0.05);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 999;
+}
+
+@keyframes screenJitter {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(2px, -1px); }
+  75% { transform: translate(-1px, -1px); }
+  100% { transform: translate(1px, 2px); }
+}
+
+/* Hide default cursor on desktop when custom cursor is active */
+@media (pointer: fine) {
+  .custom-cursor-active,
+  .custom-cursor-active * {
+    cursor: none !important;
+  }
+}
+
+/* TVA Scanner Light Sweep (Directive 09) */
+@keyframes tvaSweep {
+  0% { top: -10%; opacity: 0; }
+  15% { opacity: 0.8; }
+  50% { top: 110%; opacity: 0.8; }
+  51% { opacity: 0; }
+  100% { top: 110%; opacity: 0; }
+}
+
+.animate-tva-sweep {
+  animation: tvaSweep 7s ease-in-out infinite;
+}
+
+/* SECTION 18: PREFERS-REDUCED-MOTION SUPPORT */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
