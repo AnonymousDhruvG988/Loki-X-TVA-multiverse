@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { playTemporalPulse, playClickSound, playGlitchSound } from '../utils/soundEffects';
+import { getAssetUrl } from '../utils/assets';
 
 // 6 Authentic Loki Variant Personas Across the Website Stages
 const LOKI_VARIANTS = [
@@ -7,7 +8,7 @@ const LOKI_VARIANTS = [
     id: 'hero',
     name: 'TVA CONSULTANT // LOKI L-1130',
     title: 'THE GOD OF MISCHIEF',
-    src: '/assets/images/loki_horned_suit.png',
+    src: getAssetUrl('assets/images/loki_horned_suit.png'),
     rimLeft: 'rgba(127, 207, 138, 0.85)',
     rimRight: 'rgba(245, 166, 35, 0.75)',
     accent: '#7FCF8A',
@@ -19,7 +20,7 @@ const LOKI_VARIANTS = [
     id: 'briefing',
     name: 'TVA PRISONER // VARIANT L-1130',
     title: 'UNDER TEMPORAL ARREST',
-    src: '/assets/images/loki_tva_collar.png',
+    src: getAssetUrl('assets/images/loki_tva_collar.png'),
     rimLeft: 'rgba(245, 166, 35, 0.9)',
     rimRight: 'rgba(255, 107, 0, 0.75)',
     accent: '#F5A623',
@@ -31,7 +32,7 @@ const LOKI_VARIANTS = [
     id: 'branches',
     name: 'PRESIDENT LOKI // CLUSTER-2016',
     title: 'THE USURPER VARIANT',
-    src: '/assets/images/loki_president_variant.png',
+    src: getAssetUrl('assets/images/loki_president_variant.png'),
     rimLeft: 'rgba(0, 240, 255, 0.85)',
     rimRight: 'rgba(127, 207, 138, 0.75)',
     accent: '#00F0FF',
@@ -43,7 +44,7 @@ const LOKI_VARIANTS = [
     id: 'multiverse',
     name: 'THE TEMPORAL WEAVER',
     title: 'WEAVING MULTIVERSE FILAMENTS',
-    src: '/assets/images/loki_loom_strings_tva.png',
+    src: getAssetUrl('assets/images/loki_loom_strings_tva.png'),
     rimLeft: 'rgba(127, 207, 138, 0.95)',
     rimRight: 'rgba(74, 222, 128, 0.85)',
     accent: '#4ADE80',
@@ -55,7 +56,7 @@ const LOKI_VARIANTS = [
     id: 'stones',
     name: 'ASCENDED GOD LOKI // GOLDEN CROWN',
     title: 'THE GLORIOUS PURPOSE',
-    src: '/assets/images/loki_god_close_crown.png',
+    src: getAssetUrl('assets/images/loki_god_close_crown.png'),
     rimLeft: 'rgba(255, 215, 0, 0.9)',
     rimRight: 'rgba(176, 38, 255, 0.75)',
     accent: '#FFD700',
@@ -67,7 +68,7 @@ const LOKI_VARIANTS = [
     id: 'throne',
     name: 'GOD OF STORIES // YGGDRASIL THRONE',
     title: 'THE END OF TIME',
-    src: '/assets/images/loki_god_on_throne_multiverse.png',
+    src: getAssetUrl('assets/images/loki_god_on_throne_multiverse.png'),
     rimLeft: 'rgba(127, 207, 138, 1.0)',
     rimRight: 'rgba(245, 166, 35, 0.85)',
     accent: '#A8E6A3',
@@ -276,15 +277,21 @@ export default function LokiCinematicCharacter({ isHeroHovered = false }) {
         `;
       }
 
+      // Cache clock SVG elements to eliminate expensive per-frame querySelector DOM queries
+      let outerRingEl = null;
+      let innerRingEl = null;
+      if (clockRef.current) {
+        outerRingEl = clockRef.current.querySelector('.clock-outer-ring');
+        innerRingEl = clockRef.current.querySelector('.clock-inner-ring');
+      }
+
       if (clockRef.current) {
         clockRef.current.style.transform = `
           translate3d(${clockShiftX}px, ${clockShiftY}px, 0)
           scale(${scale * 1.25})
         `;
-        const outerG = clockRef.current.querySelector('.clock-outer-ring');
-        if (outerG) outerG.setAttribute('transform', `rotate(${clockAngle} 250 250)`);
-        const innerG = clockRef.current.querySelector('.clock-inner-ring');
-        if (innerG) innerG.setAttribute('transform', `rotate(${clockInnerAngle} 250 250)`);
+        if (outerRingEl) outerRingEl.setAttribute('transform', `rotate(${clockAngle} 250 250)`);
+        if (innerRingEl) innerRingEl.setAttribute('transform', `rotate(${clockInnerAngle} 250 250)`);
       }
 
       animId = requestAnimationFrame(render);

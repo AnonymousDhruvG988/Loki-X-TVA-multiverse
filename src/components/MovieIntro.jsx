@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, ArrowRight, Play, Volume2, ShieldAlert } from 'lucide-react';
 import { playBootStageSound, playTransitionWhoosh, startAmbientAudio, setSoundEnabled, playEnteringUniverseSound } from '../utils/soundEffects';
+import { getAssetUrl } from '../utils/assets';
 
 /**
  * MASTER CINEMATIC INTRO — LOKI GOD OF STORIES
@@ -225,7 +226,7 @@ export default function MovieIntro({ onComplete }) {
           className="absolute inset-0"
         >
           <img
-            src="/assets/images/loki_loom_strings_tva.png"
+            src={getAssetUrl('assets/images/loki_loom_strings_tva.png')}
             alt="Loki facing the temporal loom strands"
             className="w-full h-full object-cover object-center filter brightness-90 contrast-125"
           />
@@ -242,7 +243,7 @@ export default function MovieIntro({ onComplete }) {
           className="absolute inset-0"
         >
           <img
-            src="/assets/images/loki_god_close_crown.png"
+            src={getAssetUrl('assets/images/loki_god_close_crown.png')}
             alt="Loki God of Stories with Horned Crown"
             className="w-full h-full object-cover object-center filter brightness-110 contrast-130"
           />
@@ -259,7 +260,7 @@ export default function MovieIntro({ onComplete }) {
           className="absolute inset-0"
         >
           <img
-            src="/assets/images/loki_god_on_throne_multiverse.png"
+            src={getAssetUrl('assets/images/loki_god_on_throne_multiverse.png')}
             alt="Loki on Golden Throne holding the Multiverse"
             className="w-full h-full object-cover object-center filter brightness-115 contrast-135"
           />

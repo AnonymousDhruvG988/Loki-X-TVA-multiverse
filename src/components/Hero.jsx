@@ -93,7 +93,7 @@ export default function Hero({ onSetCursor, onRegisterClick, eventData, onTrigge
     },
   ];
 
-  // Connections between nodes
+  // Framing connections around perimeter of viewport
   const nodeConnections = [
     ['node-prime', 'node-616'],
     ['node-prime', 'node-838'],
@@ -101,7 +101,6 @@ export default function Hero({ onSetCursor, onRegisterClick, eventData, onTrigge
     ['node-838', 'node-trn888'],
     ['node-199999', 'node-bounty'],
     ['node-trn888', 'node-bounty'],
-    ['node-prime', 'node-bounty'],
   ];
 
   const handleNodeClick = (node, e) => {
@@ -118,8 +117,8 @@ export default function Hero({ onSetCursor, onRegisterClick, eventData, onTrigge
       ref={containerRef}
       className="relative min-h-screen w-full flex flex-col justify-between pt-20 pb-12 px-4 sm:px-8 overflow-hidden select-none"
     >
-      {/* BACKGROUND INTERACTIVE TEMPORAL NETWORK (SVG) */}
-      <div className="absolute inset-0 z-0 pointer-events-auto">
+      {/* BACKGROUND INTERACTIVE TEMPORAL NETWORK (Framing perimeter) */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="amberLineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -127,18 +126,6 @@ export default function Hero({ onSetCursor, onRegisterClick, eventData, onTrigge
               <stop offset="100%" stopColor="#FF6B00" stopOpacity="0.2" />
             </linearGradient>
           </defs>
-
-          {/* Central Trunk Timeline */}
-          <line
-            x1="50%"
-            y1="0%"
-            x2="50%"
-            y2="100%"
-            stroke="#F5A623"
-            strokeWidth="1.2"
-            strokeOpacity="0.15"
-            strokeDasharray="6 6"
-          />
 
           {/* Branch connections */}
           {nodeConnections.map(([startId, endId], idx) => {
@@ -184,7 +171,7 @@ export default function Hero({ onSetCursor, onRegisterClick, eventData, onTrigge
             return (
               <g
                 key={node.id}
-                className="cursor-pointer group"
+                className="cursor-pointer group pointer-events-auto"
                 onClick={(e) => handleNodeClick(node, e)}
                 onMouseEnter={() => {
                   setHoveredNode(node);
@@ -434,12 +421,6 @@ export default function Hero({ onSetCursor, onRegisterClick, eventData, onTrigge
           </button>
         </div>
       </div>
-
-        {/* Interactive Network Hint */}
-        <div className="mt-8 text-[11px] font-mono text-tva-bone-dim/70 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-tva-cyan animate-pulse" />
-          <span>INTERACT WITH TIMELINE NODES ABOVE TO QUERY CLUSTER INTEL</span>
-        </div>
 
       {/* BOTTOM VIEWPORT HUD HUD STATS BAR */}
       <div className="relative z-10 w-full grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 font-mono text-[11px] border-t border-tva-border/50 pt-4">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { playTerminalBeep, playTemporalPulse } from '../utils/soundEffects';
+import { getAssetUrl } from '../utils/assets';
 
 export default function Epilogue({ isOpen, onRestart, onClose }) {
   const [stage, setStage] = useState(1);
@@ -52,7 +53,7 @@ export default function Epilogue({ isOpen, onRestart, onClose }) {
           {/* Circular Archival Portrait: The Infinite Loop */}
           <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border border-[#7FCF8A] shadow-[0_0_30px_rgba(127,207,138,0.4)] mx-auto mb-2">
             <img
-              src="/assets/images/loki_timeline_poster.png"
+              src={getAssetUrl('assets/images/loki_timeline_poster.png')}
               alt="Archival Record of Variant L-1130"
               className="w-full h-full object-cover object-top filter contrast-125"
             />

@@ -94,7 +94,7 @@ export const eventData = {
       category: "CREATIVE & SPATIAL TECH",
       status: "UNSTABLE NEXUS",
       deviation: "+0.198%",
-      color: "#FF3366",
+      color: "#FFD700",
       description: "Shatter conventional interfaces with WebXR, spatial audio, generative canvas worlds, and accessible assistive tech that transcends 2D boundaries.",
       techStack: ["Three.js / WebGL", "WebXR", "Next.js", "Web Audio API", "Shader GLSL"],
       challengeBrief: "Craft an immersive, ultra-responsive spatial tool or humanitarian interface that transforms how users perceive complex data landscapes.",

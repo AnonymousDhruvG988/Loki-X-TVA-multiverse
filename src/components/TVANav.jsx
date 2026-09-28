@@ -70,24 +70,53 @@ export default function TVANav({
       <header className="fixed top-0 left-0 right-0 z-40 bg-[#050706]/95 border-b border-tva-border/60 transition-colors select-none font-mono">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-13 sm:h-14 flex items-center justify-between text-xs">
           
-          {/* LEFT: VARIANT PROTOCOL LOGO */}
+          {/* LEFT: AUTHENTIC TVA SYSTEM IDENTIFIER LOGO */}
           <a
             href="#overview"
             onClick={() => playClickSound()}
             onMouseEnter={() => onSetCursor?.('link')}
             onMouseLeave={() => onSetCursor?.('default')}
-            className="flex items-center gap-2.5 group text-tva-bone"
+            className="flex items-center gap-3 group text-tva-bone select-none"
           >
-            <div className="w-7 h-7 rounded border border-[#7FCF8A] bg-[#090D0B] flex items-center justify-center group-hover:border-[#F5A623] transition-colors shadow-[0_0_10px_rgba(127,207,138,0.3)]">
-              <span className="text-[#7FCF8A] group-hover:text-[#F5A623] font-display font-bold text-sm tracking-wider">TVA</span>
+            {/* TVA Official Badge / Emblem */}
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 flex-shrink-0 flex items-center justify-center">
+              {/* Subtle outer temporal ring with degree tick marks */}
+              <div className="absolute -inset-1 rounded-full border border-dashed border-[#7FCF8A]/40 group-hover:border-[#F5A623] group-hover:animate-spin-slow transition-colors pointer-events-none" />
+              
+              {/* Badge Base */}
+              <div className="w-full h-full rounded bg-[#070A08] border border-[#7FCF8A]/80 group-hover:border-[#7FCF8A] flex flex-col items-center justify-center relative overflow-hidden transition-all duration-300 shadow-[0_0_12px_rgba(127,207,138,0.25)] group-hover:shadow-[0_0_20px_rgba(127,207,138,0.55)]">
+                {/* Small internal laser scanning line */}
+                <div className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-[#7FCF8A] to-transparent shadow-[0_0_8px_#7FCF8A] animate-tva-sweep pointer-events-none z-10 opacity-70 group-hover:opacity-100" />
+                
+                {/* CRT Scanline Texture on Badge */}
+                <div className="absolute inset-0 crt-scanlines opacity-30 pointer-events-none" />
+
+                {/* TVA Core Typography */}
+                <span className="text-[#7FCF8A] group-hover:text-[#A8FFAF] font-display font-black text-xs sm:text-sm tracking-wider leading-none relative z-10 transition-colors">
+                  TVA
+                </span>
+                
+                {/* Micro Classification Code */}
+                <span className="text-[6px] font-mono text-tva-amber/80 tracking-tighter leading-none mt-0.5 relative z-10">
+                  CL-5
+                </span>
+
+                {/* Subtle border trace highlight on hover */}
+                <div className="absolute inset-0 border border-transparent group-hover:border-[#F5A623]/50 transition-colors pointer-events-none" />
+              </div>
             </div>
+
+            {/* TVA Text Identifier */}
             <div className="flex flex-col text-left">
-              <span className="font-display text-base tracking-wider text-tva-bone group-hover:text-[#7FCF8A] transition-colors leading-none">
+              <span className="font-display text-sm sm:text-base tracking-wider text-tva-bone group-hover:text-[#7FCF8A] group-hover:temporal-shimmer transition-colors leading-none">
                 TIME VARIANCE AUTHORITY
               </span>
-              <span className="text-[9px] text-[#F5A623] tracking-widest leading-none mt-0.5">
-                TEMPORAL CONTROL // SECTOR-616
-              </span>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="w-1 h-1 rounded-full bg-[#F5A623] group-hover:animate-ping" />
+                <span className="text-[8px] sm:text-[9px] text-[#F5A623] tracking-widest leading-none font-mono">
+                  TEMPORAL CONTROL // SECTOR-616
+                </span>
+              </div>
             </div>
           </a>
 

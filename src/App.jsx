@@ -70,6 +70,23 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isTerminalOpen, isGlitchMode]);
 
+  // Section 5: TVA Scrollbar active scroll pulse indicator
+  useEffect(() => {
+    let scrollTimeout = null;
+    const handleScroll = () => {
+      document.body.classList.add('is-scrolling');
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        document.body.classList.remove('is-scrolling');
+      }, 300);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+    };
+  }, []);
+
   const scrollToRegistration = () => {
     const el = document.getElementById('registration');
     if (el) {

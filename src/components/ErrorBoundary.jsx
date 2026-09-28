@@ -27,9 +27,15 @@ export default class ErrorBoundary extends React.Component {
           <h1 className="text-3xl sm:text-5xl font-display tracking-wider text-[#E8E2D0] uppercase mb-4">
             TIME VARIANCE AUTHORITY
           </h1>
-          <p className="text-xs sm:text-sm text-tva-bone-dim max-w-md mb-6 leading-relaxed">
+          <p className="text-xs sm:text-sm text-tva-bone-dim max-w-md mb-4 leading-relaxed">
             A temporary timeline branching error occurred. The Sacred Timeline is recovering its equilibrium.
           </p>
+          {this.state.error && (
+            <div className="max-w-xl w-full p-4 mb-6 bg-black/80 border border-red-500/50 text-red-400 text-left text-xs font-mono overflow-auto max-h-48 rounded">
+              <div className="font-bold text-red-300 mb-1">{String(this.state.error?.message || this.state.error)}</div>
+              <pre className="text-[10px] text-neutral-400 whitespace-pre-wrap">{this.state.error?.stack}</pre>
+            </div>
+          )}
           <button
             onClick={() => {
               this.setState({ hasError: false, error: null });

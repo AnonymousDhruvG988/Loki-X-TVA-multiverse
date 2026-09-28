@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, FileText, AlertTriangle, ShieldCheck, Search, CornerDownRight } from 'lucide-react';
 import { playTerminalBeep, playTemporalPulse } from '../utils/soundEffects';
+import { getAssetUrl } from '../utils/assets';
+import AtomicResonanceWidget from './AtomicResonanceWidget';
 
 export default function CaseBriefing({ eventData, onSetCursor }) {
   const [isDeclassified, setIsDeclassified] = useState(false);
@@ -176,7 +178,7 @@ export default function CaseBriefing({ eventData, onSetCursor }) {
             {/* Photo frame with Loki TVA Collar */}
             <div className="relative aspect-[4/3] w-full bg-black border border-tva-border overflow-hidden rounded-sm">
               <img
-                src="/assets/images/loki_tva_collar.png"
+                src={getAssetUrl('assets/images/loki_tva_collar.png')}
                 alt="Subject Variant L-1130 under TVA Detention"
                 className="w-full h-full object-cover object-top filter contrast-125 brightness-105 group-hover:scale-105 transition-transform duration-500"
               />
@@ -192,51 +194,8 @@ export default function CaseBriefing({ eventData, onSetCursor }) {
             </div>
           </div>
 
-          {/* CUSTOM GLOWING TEMPORAL ANOMALY KNOT (SVG) */}
-          <div className="p-6 bg-[#090D0B] border border-tva-border relative overflow-hidden flex flex-col items-center justify-center">
-            
-            <div className="w-full flex items-center justify-between text-xs text-tva-bone-dim mb-4">
-              <span className="flex items-center gap-1.5 text-[#7FCF8A]">
-                <AlertTriangle size={14} /> ANOMALY RESONANCE
-              </span>
-              <span className="text-[10px] text-tva-bone-dim">44.8 Hz // HARMONIC</span>
-            </div>
-
-            {/* Concentric Anomaly Knot */}
-            <div className="relative w-52 h-52 flex items-center justify-center">
-              <svg className="w-full h-full animate-spin" style={{ animationDuration: '45s' }} viewBox="0 0 200 200">
-                <circle cx="100" cy="100" r="85" fill="none" stroke="#245C46" strokeWidth="1" strokeDasharray="3 6" opacity="0.4" />
-                <circle cx="100" cy="100" r="70" fill="none" stroke="#7FCF8A" strokeWidth="1.5" strokeDasharray="8 4" opacity="0.6" />
-                <circle cx="100" cy="100" r="50" fill="none" stroke="#F5A623" strokeWidth="1.5" opacity="0.7" />
-                <circle cx="100" cy="100" r="30" fill="none" stroke="#A8E6A3" strokeWidth="2" strokeDasharray="4 2" opacity="0.8" />
-                
-                {/* Möbius timeline curves */}
-                <path
-                  d="M40 100 Q100 20 160 100 T40 100"
-                  fill="none"
-                  stroke="#7FCF8A"
-                  strokeWidth="2"
-                  opacity="0.8"
-                />
-                <path
-                  d="M100 40 Q180 100 100 160 T100 40"
-                  fill="none"
-                  stroke="#F5A623"
-                  strokeWidth="1.5"
-                  opacity="0.7"
-                />
-              </svg>
-
-              {/* Pulsing Temporal Core */}
-              <div className="absolute w-12 h-12 rounded-full bg-[#7FCF8A]/20 border border-[#7FCF8A] flex items-center justify-center shadow-green-sm">
-                <div className="w-3 h-3 rounded-full bg-[#A8E6A3] animate-ping" />
-              </div>
-            </div>
-
-            <div className="mt-2 text-center font-mono text-[11px] text-[#7FCF8A] tracking-wider">
-              QUANTUM ENTROPY: 0.0038 ζ // STABILIZATION ACTIVE
-            </div>
-          </div>
+          {/* ATOMIC ANOMALY RESONANCE ORBITAL SYSTEM */}
+          <AtomicResonanceWidget />
 
           {/* STAMPED EVENT RECORDS GRID */}
           <div className="p-6 bg-[#090D0B] border border-tva-border space-y-3.5">
