@@ -16,22 +16,31 @@ class PointerCoordinator {
     this.isDown = false;
     this.isTouch = false;
     this.initialized = false;
-    this.subscribers = new Set();
+    this.cursorShape = 'default';
+    this.cursorSubscribers = new Set();
 
     if (typeof window !== 'undefined') {
       this.init();
     }
   }
 
+  setCursorShape(shape) {
+    if (this.cursorShape === shape) return;
+    this.cursorShape = shape;
+    for (const sub of this.cursorSubscribers) {
+      try { sub(shape); } catch (_) {}
+    }
+  }
+
+  onCursorShapeChange(fn) {
+    this.cursorSubscribers.add(fn);
+    fn(this.cursorShape);
+    return () => this.cursorSubscribers.delete(fn);
+  }
+
   init() {
-    this.isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || window.matchMedia('(pointer: coarse)').matches;
-    if (this.isTouch) return;
-
-    let prevX = this.targetX;
-    let prevY = this.targetY;
-    let prevTime = performance.now();
-
     const handlePointerMove = (e) => {
+      if (e.pointerType === 'touch') return;
       this.targetX = e.clientX;
       this.targetY = e.clientY;
 
@@ -40,51 +49,21 @@ class PointerCoordinator {
         this.currentY = this.targetY;
         this.initialized = true;
       }
-
-      const now = performance.now();
-      const dt = Math.max(1, now - prevTime);
-      this.velocityX = (this.targetX - prevX) / dt;
-      this.velocityY = (this.targetY - prevY) / dt;
-      prevX = this.targetX;
-      prevY = this.targetY;
-      prevTime = now;
-
-      // Detect if pointer is directly over active interactive controls
-      const target = e.target;
-      if (target && target !== document.body && target !== document.documentElement) {
-        const isUI = Boolean(
-          target.closest('button, a, input, select, textarea, [role="button"], dialog, [data-modal]') ||
-          target.tagName === 'BUTTON' ||
-          target.tagName === 'A' ||
-          target.tagName === 'INPUT'
-        );
-        this.isOverUI = isUI;
-      } else {
-        this.isOverUI = false;
-      }
-
-      // Notify subscribers if needed
-      for (const sub of this.subscribers) {
-        try { sub(this); } catch (_) {}
-      }
     };
 
-    const handlePointerDown = () => {
+    const handlePointerDown = (e) => {
+      if (e.pointerType === 'touch') return;
       this.isDown = true;
     };
 
-    const handlePointerUp = () => {
+    const handlePointerUp = (e) => {
+      if (e.pointerType === 'touch') return;
       this.isDown = false;
     };
 
     window.addEventListener('pointermove', handlePointerMove, { passive: true });
     window.addEventListener('pointerdown', handlePointerDown, { passive: true });
     window.addEventListener('pointerup', handlePointerUp, { passive: true });
-  }
-
-  subscribe(fn) {
-    this.subscribers.add(fn);
-    return () => this.subscribers.delete(fn);
   }
 }
 

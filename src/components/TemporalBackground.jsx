@@ -43,12 +43,12 @@ export default function TemporalBackground() {
       });
     }
 
-    // Scroll progress tracking
+    // Scroll progress tracking (cached totalHeight prevents layout reflows on scroll)
     let currentScroll = 0;
     let targetScroll = 0;
+    let totalHeight = document.documentElement.scrollHeight - window.innerHeight;
 
     const handleScroll = () => {
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
       targetScroll = totalHeight > 0 ? Math.max(0, Math.min(1, window.scrollY / totalHeight)) : 0;
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -60,6 +60,7 @@ export default function TemporalBackground() {
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
+      totalHeight = document.documentElement.scrollHeight - window.innerHeight;
     };
     window.addEventListener('resize', handleResize, { passive: true });
 
@@ -283,8 +284,9 @@ export default function TemporalBackground() {
       },
     ];
 
-    // Initialize physical spring-interpolated control points
-    const strands = strandDefinitions.map((s, idx) => {
+    // Initialize physical spring-interpolated control points (adaptive for mobile vs desktop high-FPS)
+    const activeStrandDefs = isMobile ? strandDefinitions.slice(0, 4) : strandDefinitions;
+    const strands = activeStrandDefs.map((s, idx) => {
       const points = [];
       for (let i = 0; i < NUM_PTS; i++) {
         const p = i / (NUM_PTS - 1);
@@ -356,9 +358,15 @@ export default function TemporalBackground() {
       };
     };
 
-    const render = () => {
+    let lastTime = performance.now();
+
+    const render = (currentTime) => {
       if (!isVisible) return;
-      const dt = prefersReducedMotion ? 0.006 : 0.016;
+      const now = currentTime || performance.now();
+      const elapsed = Math.min(0.033, (now - lastTime) / 1000);
+      lastTime = now;
+
+      const dt = prefersReducedMotion ? 0.006 : elapsed;
       t += dt;
 
       currentScroll += (targetScroll - currentScroll) * 0.08;

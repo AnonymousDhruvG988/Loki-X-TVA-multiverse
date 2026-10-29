@@ -140,6 +140,12 @@ export default function LokiCinematicCharacter({ isHeroHovered = false }) {
     let clockInnerAngle = 0;
     let timeElapsed = 0;
 
+    let docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const handleResize = () => {
+      docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize, { passive: true });
+
     const handlePointerMove = (e) => {
       mouse.targetX = (e.clientX / window.innerWidth - 0.5) * 2;
       mouse.targetY = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -147,13 +153,16 @@ export default function LokiCinematicCharacter({ isHeroHovered = false }) {
     window.addEventListener('pointermove', handlePointerMove, { passive: true });
 
     const handleScroll = () => {
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       if (docHeight > 0) {
         scroll.targetProgress = Math.min(1, Math.max(0, window.scrollY / docHeight));
       }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
+
+    // Cache clock SVG elements ONCE to eliminate expensive per-frame DOM queries
+    const outerRingEl = clockRef.current?.querySelector('.clock-outer-ring');
+    const innerRingEl = clockRef.current?.querySelector('.clock-inner-ring');
 
     // 60 FPS Animation Loop
     const render = () => {
@@ -164,8 +173,8 @@ export default function LokiCinematicCharacter({ isHeroHovered = false }) {
         mouse.currX += (mouse.targetX - mouse.currX) * 0.07;
         mouse.currY += (mouse.targetY - mouse.currY) * 0.07;
 
-        // Smooth lerp for scroll progression
-        scroll.currProgress += (scroll.targetProgress - scroll.currProgress) * 0.08;
+        // Snappy responsive lerp for scroll progression
+        scroll.currProgress += (scroll.targetProgress - scroll.currProgress) * 0.18;
       } else {
         mouse.currX = 0;
         mouse.currY = 0;
@@ -243,7 +252,7 @@ export default function LokiCinematicCharacter({ isHeroHovered = false }) {
       const charShiftY = mouse.currY * 8;
       const clockShiftX = mouse.currX * 5;
       const clockShiftY = mouse.currY * 4;
-      const shadowShiftX = -mouse.currX * 8; // Opposite direction gives real ground shadow
+      const shadowShiftX = -mouse.currX * 8;
       const shadowShiftY = -mouse.currY * 4;
 
       // Vertical breathing motion (1-3px sine)
@@ -259,7 +268,7 @@ export default function LokiCinematicCharacter({ isHeroHovered = false }) {
       clockAngle += 0.22 * clockDir;
       clockInnerAngle -= 0.16 * clockDir;
 
-      // Apply transforms directly via refs (ZERO React re-renders!)
+      // Apply transforms directly via hardware-accelerated refs
       if (characterRef.current) {
         characterRef.current.style.transform = `
           translate3d(${charShiftX + sway + posX}px, ${charShiftY + breath + posY}px, 0)
@@ -277,22 +286,14 @@ export default function LokiCinematicCharacter({ isHeroHovered = false }) {
         `;
       }
 
-      // Cache clock SVG elements to eliminate expensive per-frame querySelector DOM queries
-      let outerRingEl = null;
-      let innerRingEl = null;
-      if (clockRef.current) {
-        outerRingEl = clockRef.current.querySelector('.clock-outer-ring');
-        innerRingEl = clockRef.current.querySelector('.clock-inner-ring');
-      }
-
       if (clockRef.current) {
         clockRef.current.style.transform = `
           translate3d(${clockShiftX}px, ${clockShiftY}px, 0)
           scale(${scale * 1.25})
         `;
-        if (outerRingEl) outerRingEl.setAttribute('transform', `rotate(${clockAngle} 250 250)`);
-        if (innerRingEl) innerRingEl.setAttribute('transform', `rotate(${clockInnerAngle} 250 250)`);
       }
+      if (outerRingEl) outerRingEl.setAttribute('transform', `rotate(${clockAngle} 250 250)`);
+      if (innerRingEl) innerRingEl.setAttribute('transform', `rotate(${clockInnerAngle} 250 250)`);
 
       animId = requestAnimationFrame(render);
     };
@@ -303,6 +304,7 @@ export default function LokiCinematicCharacter({ isHeroHovered = false }) {
       if (animId) cancelAnimationFrame(animId);
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -320,26 +322,16 @@ export default function LokiCinematicCharacter({ isHeroHovered = false }) {
       )}
 
       {/* =========================================================================
-          LAYER 1: GIANT HOLOGRAPHIC TVA CLOCK (Behind Loki)
+          LAYER 1: GIANT HOLOGRAPHIC TVA CLOCK (Behind Loki - Desktop/Laptop)
           ========================================================================= */}
       <div
         ref={clockRef}
-        className="absolute right-0 sm:right-6 top-1/2 -translate-y-1/2 w-[440px] sm:w-[540px] h-[440px] sm:h-[540px] pointer-events-none opacity-45 transition-opacity duration-700"
+        className="hidden sm:block absolute right-0 sm:right-6 top-1/2 -translate-y-1/2 w-[440px] sm:w-[540px] h-[440px] sm:h-[540px] pointer-events-none opacity-45 transition-opacity duration-700"
         style={{ transformOrigin: 'center center' }}
       >
         <svg viewBox="0 0 500 500" className="w-full h-full overflow-visible">
-          <defs>
-            <filter id="clockAura" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-
           {/* Outer Roman Numeral / Tick Ring (Clockwise) */}
-          <g className="clock-outer-ring" filter="url(#clockAura)">
+          <g className="clock-outer-ring">
             <circle cx="250" cy="250" r="225" fill="none" stroke="#245C46" strokeWidth="1.5" strokeDasharray="8 6" />
             <circle cx="250" cy="250" r="205" fill="none" stroke="#F5A623" strokeWidth="1.2" strokeDasharray="16 8" opacity="0.6" />
             {/* 12 Radial Hour Markers */}
@@ -369,7 +361,7 @@ export default function LokiCinematicCharacter({ isHeroHovered = false }) {
           {/* Central Pulsing Temporal Core */}
           <circle cx="250" cy="250" r="70" fill="rgba(23, 63, 50, 0.25)" />
           <circle cx="250" cy="250" r="40" fill="none" stroke="#7FCF8A" strokeWidth="2" className="animate-pulse" />
-          <circle cx="250" cy="250" r="8" fill="#F5A623" filter="url(#clockAura)" />
+          <circle cx="250" cy="250" r="8" fill="#F5A623" />
         </svg>
 
         {/* Clock Reverse Button */}
@@ -389,7 +381,7 @@ export default function LokiCinematicCharacter({ isHeroHovered = false }) {
           LAYER 2: VOLUMETRIC FOG & ATMOSPHERIC AURA
           ========================================================================= */}
       <div
-        className="absolute right-12 top-1/2 -translate-y-1/2 w-[380px] h-[480px] rounded-full pointer-events-none opacity-50 blur-3xl transition-opacity duration-700"
+        className="hidden sm:block absolute right-12 top-1/2 -translate-y-1/2 w-[380px] h-[480px] rounded-full pointer-events-none opacity-50 blur-3xl transition-opacity duration-700"
         style={{
           background: isLokiHovered
             ? `radial-gradient(circle, ${activeVariant.rimLeft} 0%, ${activeVariant.rimRight} 50%, transparent 75%)`
@@ -402,7 +394,7 @@ export default function LokiCinematicCharacter({ isHeroHovered = false }) {
           ========================================================================= */}
       <div
         ref={shadowRef}
-        className="absolute right-8 top-1/2 -translate-y-1/2 w-[340px] sm:w-[400px] h-[460px] sm:h-[540px] pointer-events-none blur-xl opacity-80"
+        className="hidden sm:block absolute right-8 top-1/2 -translate-y-1/2 w-[340px] sm:w-[400px] h-[460px] sm:h-[540px] pointer-events-none blur-xl opacity-80"
         style={{
           background: 'radial-gradient(ellipse at 50% 55%, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.6) 65%, transparent 80%)',
         }}
@@ -416,7 +408,7 @@ export default function LokiCinematicCharacter({ isHeroHovered = false }) {
         onClick={handleLokiClick}
         onMouseEnter={() => setIsLokiHovered(true)}
         onMouseLeave={() => setIsLokiHovered(false)}
-        className="relative z-10 w-[320px] sm:w-[380px] lg:w-[440px] pointer-events-auto cursor-pointer group transition-all duration-300"
+        className="relative z-10 w-[320px] sm:w-[380px] lg:w-[440px] pointer-events-auto cursor-pointer group will-change-transform"
         style={{
           transformStyle: 'preserve-3d',
           perspective: '1000px',
@@ -433,14 +425,12 @@ export default function LokiCinematicCharacter({ isHeroHovered = false }) {
 
         {/* Soft Front Light & Dual Rim Glow Filter Container */}
         <div
-          className="relative w-full rounded-2xl overflow-hidden transition-all duration-500"
+          className="relative w-full rounded-2xl overflow-hidden will-change-transform transition-all duration-300"
           style={{
-            // High-grade dual rim light tailored dynamically to the active variant
-            filter: isLokiHovered
-              ? `drop-shadow(-12px 0px 28px ${activeVariant.rimLeft}) drop-shadow(12px 0px 28px ${activeVariant.rimRight}) drop-shadow(0 20px 30px rgba(0,0,0,0.95))`
-              : `drop-shadow(-7px 0px 18px ${activeVariant.rimLeft}) drop-shadow(7px 0px 18px ${activeVariant.rimRight}) drop-shadow(0 15px 25px rgba(0,0,0,0.9))`,
-            maskImage: 'radial-gradient(ellipse at 50% 48%, black 65%, rgba(0,0,0,0.8) 82%, transparent 98%)',
-            WebkitMaskImage: 'radial-gradient(ellipse at 50% 48%, black 65%, rgba(0,0,0,0.8) 82%, transparent 98%)',
+            // High-performance hardware-accelerated luminous rim light
+            boxShadow: isLokiHovered
+              ? `0 0 25px ${activeVariant.rimLeft}, 0 15px 30px rgba(0,0,0,0.9)`
+              : `0 0 15px ${activeVariant.rimLeft}, 0 10px 20px rgba(0,0,0,0.8)`,
           }}
         >
           {/* Authentic Loki Multi-Variant Pictures with Smooth Scroll Crossfades */}

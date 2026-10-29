@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Compass, Orbit, Radio, Shield, Eye, X, Sparkles, ExternalLink, Activity } from 'lucide-react';
+import { Compass, Orbit, X } from 'lucide-react';
 import { playClickSound, playTerminalBeep, playTemporalPulse, playTransitionWhoosh } from '../utils/soundEffects';
 import { getAssetUrl } from '../utils/assets';
 
@@ -335,31 +335,31 @@ export default function MultiverseMap({ onSetCursor }) {
 
         ctx.save();
 
-        // 3a. Wide outer glow path
+        // Build harmonic wave path once (step 10 gives smooth curvature with 65% less math)
         ctx.beginPath();
-        for (let x = -20; x <= width + 20; x += 4) {
+        for (let x = -20; x <= width + 20; x += 10) {
           const y = evaluateStrandY(s, x, s.time, isHovered);
           if (x === -20) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
+
+        // 3a. Wide outer glow path
         ctx.strokeStyle = s.color;
-        ctx.lineWidth = isHovered ? 12 : s.width * 2.5;
-        ctx.globalAlpha = isHovered ? 0.6 : 0.25;
-        ctx.shadowColor = s.glowColor || s.color;
-        ctx.shadowBlur = isHovered ? 24 : 10;
+        ctx.lineWidth = isHovered ? 12 : s.width * 2.4;
+        ctx.globalAlpha = isHovered ? 0.6 : 0.28;
+        if (isHovered) {
+          ctx.shadowColor = s.glowColor || s.color;
+          ctx.shadowBlur = 14;
+        } else {
+          ctx.shadowBlur = 0;
+        }
         ctx.stroke();
 
         // 3b. Sharp luminous core string
-        ctx.beginPath();
-        for (let x = -20; x <= width + 20; x += 4) {
-          const y = evaluateStrandY(s, x, s.time, isHovered);
-          if (x === -20) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
         ctx.strokeStyle = isHovered ? '#FFFFFF' : s.color;
         ctx.lineWidth = isHovered ? s.width + 1.8 : s.width;
         ctx.globalAlpha = isHovered ? 1.0 : 0.9;
-        ctx.shadowBlur = isHovered ? 14 : 0;
+        ctx.shadowBlur = isHovered ? 10 : 0;
         ctx.shadowColor = '#FFFFFF';
 
         if (s.dashed) {
@@ -375,8 +375,10 @@ export default function MultiverseMap({ onSetCursor }) {
         ctx.beginPath();
         ctx.arc(sparkX, sparkY, isHovered ? 5 : 3.2, 0, Math.PI * 2);
         ctx.fillStyle = '#FFFFFF';
-        ctx.shadowColor = s.color;
-        ctx.shadowBlur = isHovered ? 14 : 8;
+        if (isHovered) {
+          ctx.shadowColor = s.color;
+          ctx.shadowBlur = 10;
+        }
         ctx.fill();
 
         // 3d. Telemetry pill tag if string is hovered
@@ -440,8 +442,6 @@ export default function MultiverseMap({ onSetCursor }) {
           ctx.arc(node.x, node.y, 2, 0, Math.PI * 2);
           ctx.fillStyle = '#FFFFFF';
           ctx.globalAlpha = 0.85;
-          ctx.shadowColor = '#FFFFFF';
-          ctx.shadowBlur = 6;
           ctx.fill();
         } else {
           const isNodeHov = closestNode?.id === node.id;
@@ -453,8 +453,12 @@ export default function MultiverseMap({ onSetCursor }) {
             ctx.strokeStyle = isNodeHov ? '#FFFFFF' : node.color;
             ctx.lineWidth = isNodeHov ? 2 : 1.5;
             ctx.globalAlpha = isNodeHov ? 1.0 : 0.6;
-            ctx.shadowColor = isNodeHov ? '#FFFFFF' : node.color;
-            ctx.shadowBlur = isNodeHov ? 15 : 5;
+            if (isNodeHov) {
+              ctx.shadowColor = '#FFFFFF';
+              ctx.shadowBlur = 12;
+            } else {
+              ctx.shadowBlur = 0;
+            }
             ctx.stroke();
 
             // Subtle green/amber inner halo
@@ -475,8 +479,12 @@ export default function MultiverseMap({ onSetCursor }) {
           ctx.beginPath();
           ctx.arc(node.x, node.y, isNodeHov ? node.size : node.size * 0.55, 0, Math.PI * 2);
           ctx.fillStyle = isNodeHov ? '#FFFFFF' : node.color;
-          ctx.shadowColor = node.color;
-          ctx.shadowBlur = isNodeHov ? 18 : 8;
+          if (isNodeHov) {
+            ctx.shadowColor = node.color;
+            ctx.shadowBlur = 14;
+          } else {
+            ctx.shadowBlur = 0;
+          }
           ctx.fill();
 
           // Node HUD tooltip if hovered
@@ -490,11 +498,8 @@ export default function MultiverseMap({ onSetCursor }) {
             ctx.fillStyle = 'rgba(5, 7, 6, 0.95)';
             ctx.strokeStyle = node.color;
             ctx.lineWidth = 1.5;
-            ctx.shadowColor = node.color;
-            ctx.shadowBlur = 10;
             ctx.fillRect(badgeX - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH);
             ctx.strokeRect(badgeX - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH);
-            ctx.shadowBlur = 0;
 
             // Text
             ctx.font = 'bold 10px "Space Mono", monospace';
@@ -533,6 +538,8 @@ export default function MultiverseMap({ onSetCursor }) {
     };
   }, []);
 
+  const activeCursorStateRef = useRef('default');
+
   const handlePointerMoveOnMap = (e) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
@@ -540,12 +547,10 @@ export default function MultiverseMap({ onSetCursor }) {
     const y = (e.clientY - rect.top);
     mouseRef.current = { x, y, isOver: true };
 
-    if (hoveredNodeRef.current) {
-      onSetCursor?.('timeline-node');
-    } else if (hoveredStrandIdRef.current) {
-      onSetCursor?.('timeline-node');
-    } else {
-      onSetCursor?.('default');
+    const targetCursor = (hoveredNodeRef.current || hoveredStrandIdRef.current) ? 'timeline-node' : 'default';
+    if (activeCursorStateRef.current !== targetCursor) {
+      activeCursorStateRef.current = targetCursor;
+      onSetCursor?.(targetCursor);
     }
   };
 
@@ -553,7 +558,10 @@ export default function MultiverseMap({ onSetCursor }) {
     mouseRef.current.isOver = false;
     hoveredStrandIdRef.current = null;
     hoveredNodeRef.current = null;
-    onSetCursor?.('default');
+    if (activeCursorStateRef.current !== 'default') {
+      activeCursorStateRef.current = 'default';
+      onSetCursor?.('default');
+    }
   };
 
   const handleCanvasClick = () => {

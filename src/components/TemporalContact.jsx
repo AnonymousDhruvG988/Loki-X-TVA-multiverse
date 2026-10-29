@@ -256,11 +256,24 @@ function CarrierWaveMiniMonitor({ channel, isGlitching }) {
       }
 
       ctx.globalAlpha = 1.0;
-      animId = requestAnimationFrame(render);
+      if (isVisible) {
+        animId = requestAnimationFrame(render);
+      } else {
+        animId = null;
+      }
     };
 
-    animId = requestAnimationFrame(render);
+    let isVisible = false;
+    const observer = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (isVisible && !animId) {
+        animId = requestAnimationFrame(render);
+      }
+    });
+    observer.observe(canvas);
+
     return () => {
+      observer.disconnect();
       if (animId) cancelAnimationFrame(animId);
     };
   }, [channel, isGlitching]);

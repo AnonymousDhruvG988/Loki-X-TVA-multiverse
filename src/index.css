@@ -2,6 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ========================================================
+   AUTHENTIC MARVEL STUDIOS LOKI INTRO TYPEFACES
+   ======================================================== */
+@font-face {
+  font-family: 'US Angel';
+  src: url('./assets/fonts/usangel.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Old English Five';
+  src: url('./assets/fonts/old-english-five.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ARB 85 Poster Script';
+  src: url('./assets/fonts/arb-poster-script.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cloister Black';
+  src: url('./assets/fonts/cloister-black.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --color-tva-bg: #0A0A0C;
   --color-tva-amber: #F5A623;
@@ -15,15 +50,6 @@
    ======================================================== */
 html {
   scrollbar-gutter: stable;
-}
-
-@keyframes thumbBreathe {
-  0%, 100% {
-    box-shadow: 0 0 6px rgba(127, 207, 138, 0.45), inset 0 0 2px rgba(255, 255, 255, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 12px rgba(127, 207, 138, 0.75), inset 0 0 4px rgba(255, 255, 255, 0.5);
-  }
 }
 
 @media (min-width: 768px) {
@@ -47,18 +73,6 @@ html {
     );
   }
 
-  body.is-scrolling ::-webkit-scrollbar-track {
-    background-image: repeating-linear-gradient(
-      180deg,
-      transparent 0px,
-      transparent 15px,
-      rgba(127, 207, 138, 0.35) 16px,
-      transparent 17px,
-      transparent 63px,
-      rgba(245, 166, 35, 0.65) 64px
-    );
-  }
-
   ::-webkit-scrollbar-thumb {
     /* Narrow translucent TVA-green temporal core with bright green leading edge and amber diagnostic marker */
     background: linear-gradient(
@@ -71,20 +85,8 @@ html {
     );
     border: 1px solid rgba(168, 255, 178, 0.5);
     border-radius: 4px;
-    animation: thumbBreathe 4s ease-in-out infinite;
+    box-shadow: 0 0 6px rgba(127, 207, 138, 0.5);
     transition: background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  }
-
-  body.is-scrolling ::-webkit-scrollbar-thumb {
-    background: linear-gradient(
-      180deg,
-      #FFFFFF 0%,
-      #A8FFAF 20%,
-      #7FCF8A 50%,
-      #FFB800 85%,
-      #FF3366 100%
-    );
-    box-shadow: 0 0 16px rgba(127, 207, 138, 0.9), 0 0 8px rgba(245, 166, 35, 0.7);
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -310,12 +312,10 @@ html {
   100% { transform: translate(1px, 2px); }
 }
 
-/* Hide default cursor on desktop when custom cursor is active */
-@media (pointer: fine) {
-  .custom-cursor-active,
-  .custom-cursor-active * {
-    cursor: none !important;
-  }
+/* Hide default cursor when custom cursor is active */
+.custom-cursor-active,
+.custom-cursor-active * {
+  cursor: none !important;
 }
 
 /* TVA Scanner Light Sweep (Directive 09) */
@@ -343,8 +343,16 @@ html {
   }
 }
 
+html, body {
+  overflow-x: hidden;
+}
+
+body {
+  width: 100%;
+  position: relative;
+}
+
 html {
-  scroll-behavior: smooth;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -376,5 +384,48 @@ html {
 
 .animate-blueprint-doc-sweep {
   animation: blueprintDocSweep 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* ========================================================
+   AUTHENTIC MARVEL STUDIOS LOKI FILM EFFECTS & GLITCH
+   ======================================================== */
+.loki-chromatic-glow {
+  text-shadow: 
+    -1.5px 0 rgba(0, 240, 255, 0.4),
+    1.5px 0 rgba(255, 51, 102, 0.4),
+    0 0 15px rgba(255, 255, 255, 0.8),
+    0 0 35px rgba(255, 255, 255, 0.45),
+    0 0 65px rgba(127, 207, 138, 0.25);
+}
+
+.tva-gold-chromatic-glow {
+  text-shadow: 
+    -1.5px 0 rgba(0, 240, 255, 0.35),
+    1.5px 0 rgba(255, 51, 102, 0.35),
+    0 0 18px rgba(245, 166, 35, 0.85),
+    0 0 38px rgba(245, 166, 35, 0.5),
+    0 0 70px rgba(255, 181, 46, 0.3);
+}
+
+@keyframes lokiButtonJitter {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-1.5px, 1px);
+  }
+  40% {
+    transform: translate(1.5px, -1px);
+  }
+  60% {
+    transform: translate(-1px, -0.5px);
+  }
+  80% {
+    transform: translate(1px, 0.5px);
+  }
+}
+
+.loki-glitch-btn:hover {
+  animation: lokiButtonJitter 0.22s infinite ease-in-out;
 }
 

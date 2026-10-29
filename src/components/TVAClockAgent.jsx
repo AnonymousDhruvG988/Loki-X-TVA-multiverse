@@ -23,10 +23,9 @@ export default function TVAClockAgent({ onOpenAuth, onTriggerGlitch, onSetCursor
     "Hey there, Variant! Welcome to the Time Variance Authority! Need help navigatin' these timeline branches?"
   );
 
-  // Pupil offset from eye center (tracked to mouse)
-  const [pupilPos, setPupilPos] = useState({ x: 0, y: 0 });
   const [isBlinking, setIsBlinking] = useState(false);
   const clockCenterRef = useRef({ x: 0, y: 0 });
+  const pupilsGroupRef = useRef(null);
 
   // Update center position of the clock
   const updateCenter = useCallback(() => {
@@ -41,17 +40,23 @@ export default function TVAClockAgent({ onOpenAuth, onTriggerGlitch, onSetCursor
 
   useEffect(() => {
     updateCenter();
-    window.addEventListener('resize', updateCenter);
-    window.addEventListener('scroll', updateCenter, { passive: true });
+    window.addEventListener('resize', updateCenter, { passive: true });
     return () => {
       window.removeEventListener('resize', updateCenter);
-      window.removeEventListener('scroll', updateCenter);
     };
   }, [updateCenter]);
 
-  // Cursor tracking for pupils
+  // Zero-React-rerender cursor tracking for pupils
   useEffect(() => {
+    let animFrame = null;
+    let targetPx = 0;
+    let targetPy = 0;
+
     const handlePointerMove = (e) => {
+      // Lazy init center if needed
+      if (clockCenterRef.current.x === 0) {
+        updateCenter();
+      }
       const dx = e.clientX - clockCenterRef.current.x;
       const dy = e.clientY - clockCenterRef.current.y;
       const dist = Math.hypot(dx, dy);
@@ -59,15 +64,26 @@ export default function TVAClockAgent({ onOpenAuth, onTriggerGlitch, onSetCursor
       if (dist > 0) {
         // Clamp pupil displacement to max 2.5px
         const maxDist = 2.5;
-        const px = (dx / dist) * Math.min(dist * 0.04, maxDist);
-        const py = (dy / dist) * Math.min(dist * 0.04, maxDist);
-        setPupilPos({ x: px, y: py });
+        targetPx = (dx / dist) * Math.min(dist * 0.04, maxDist);
+        targetPy = (dy / dist) * Math.min(dist * 0.04, maxDist);
+
+        if (!animFrame) {
+          animFrame = requestAnimationFrame(() => {
+            if (pupilsGroupRef.current) {
+              pupilsGroupRef.current.style.transform = `translate3d(${targetPx}px, ${targetPy}px, 0)`;
+            }
+            animFrame = null;
+          });
+        }
       }
     };
 
     window.addEventListener('pointermove', handlePointerMove, { passive: true });
-    return () => window.removeEventListener('pointermove', handlePointerMove);
-  }, []);
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      if (animFrame) cancelAnimationFrame(animFrame);
+    };
+  }, [updateCenter]);
 
   // Autonomous Procedural Blinking
   useEffect(() => {
@@ -393,7 +409,9 @@ export default function TVAClockAgent({ onOpenAuth, onTriggerGlitch, onSetCursor
             <g>
               {/* Left Eye: Open & tracking */}
               <ellipse cx="38" cy="44" rx="5" ry="6.5" fill="#050706" />
-              <circle cx={38 + pupilPos.x} cy={43 + pupilPos.y} r="2" fill="#FFFFFF" />
+              <g ref={pupilsGroupRef} className="will-change-transform">
+                <circle cx="38" cy="43" r="2" fill="#FFFFFF" />
+              </g>
               {/* Right Eye: Wink Arc */}
               <path d="M 56 45 Q 62 39, 68 45" fill="none" stroke="#050706" strokeWidth="2.5" strokeLinecap="round" />
             </g>
@@ -408,16 +426,20 @@ export default function TVAClockAgent({ onOpenAuth, onTriggerGlitch, onSetCursor
             <g>
               <circle cx="38" cy="44" r="6.5" fill="#050706" />
               <circle cx="62" cy="44" r="6.5" fill="#050706" />
-              <circle cx={38 + pupilPos.x} cy={43 + pupilPos.y} r="2.2" fill="#FFFFFF" />
-              <circle cx={62 + pupilPos.x} cy={43 + pupilPos.y} r="2.2" fill="#FFFFFF" />
+              <g ref={pupilsGroupRef} className="will-change-transform">
+                <circle cx="38" cy="43" r="2.2" fill="#FFFFFF" />
+                <circle cx="62" cy="43" r="2.2" fill="#FFFFFF" />
+              </g>
             </g>
           ) : (
             /* Natural Sentry Eyes with Cursor Following Pupils */
             <g>
               <ellipse cx="38" cy="44" rx="5" ry="6.5" fill="#050706" />
               <ellipse cx="62" cy="44" rx="5" ry="6.5" fill="#050706" />
-              <circle cx={38.5 + pupilPos.x} cy={42.5 + pupilPos.y} r="1.8" fill="#FFFFFF" />
-              <circle cx={62.5 + pupilPos.x} cy={42.5 + pupilPos.y} r="1.8" fill="#FFFFFF" />
+              <g ref={pupilsGroupRef} className="will-change-transform">
+                <circle cx="38.5" cy="42.5" r="1.8" fill="#FFFFFF" />
+                <circle cx="62.5" cy="42.5" r="1.8" fill="#FFFFFF" />
+              </g>
             </g>
           )}
 

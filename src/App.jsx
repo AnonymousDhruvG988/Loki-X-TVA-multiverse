@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { eventData } from './data/eventData';
 import { setSoundEnabled, getSoundEnabled, playTerminalBeep, playGlitchSound } from './utils/soundEffects';
+import { globalPointer } from './utils/pointer';
 
 // Cinematic Components
 import MovieIntro from './components/MovieIntro';
@@ -30,11 +31,15 @@ import TVAClockAgent from './components/TVAClockAgent';
 export default function App() {
   const [introCompleted, setIntroCompleted] = useState(false);
   const [soundActive, setSoundActive] = useState(getSoundEnabled()); // Sound ON by default per user request
-  const [cursorState, setCursorState] = useState('default');
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [isGlitchMode, setIsGlitchMode] = useState(false);
   const [isEpilogueOpen, setIsEpilogueOpen] = useState(false);
   const [authModal, setAuthModal] = useState({ isOpen: false, mode: 'login' });
+
+  // Decoupled zero-latency cursor updater - zero re-renders of App tree!
+  const handleSetCursor = useCallback((state) => {
+    globalPointer.setCursorShape(state);
+  }, []);
 
   // Toggle sound
   const handleToggleSound = () => {
@@ -70,23 +75,6 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isTerminalOpen, isGlitchMode]);
 
-  // Section 5: TVA Scrollbar active scroll pulse indicator
-  useEffect(() => {
-    let scrollTimeout = null;
-    const handleScroll = () => {
-      document.body.classList.add('is-scrolling');
-      if (scrollTimeout) clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        document.body.classList.remove('is-scrolling');
-      }, 300);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (scrollTimeout) clearTimeout(scrollTimeout);
-    };
-  }, []);
-
   const scrollToRegistration = () => {
     const el = document.getElementById('registration');
     if (el) {
@@ -100,12 +88,12 @@ export default function App() {
   };
 
   return (
-    <div className={`relative min-h-screen bg-[#050706] text-[#E8E2D0] selection:bg-[#7FCF8A] selection:text-black overflow-x-hidden ${
+    <div className={`relative min-h-screen bg-[#050706] text-[#E8E2D0] selection:bg-[#7FCF8A] selection:text-black ${
       isGlitchMode ? 'temporal-glitch-mode' : ''
     }`}>
       
       {/* Zero-Latency Custom Desktop Cursor */}
-      <CustomCursor cursorState={cursorState} />
+      <CustomCursor />
 
       {/* Global CRT Scanlines Background Layer */}
       <div className="fixed inset-0 crt-scanlines opacity-25 pointer-events-none z-30" />
@@ -131,7 +119,7 @@ export default function App() {
         isOpen={authModal.isOpen}
         mode={authModal.mode}
         onClose={() => setAuthModal({ isOpen: false, mode: 'login' })}
-        onSetCursor={setCursorState}
+        onSetCursor={handleSetCursor}
       />
 
       {/* CINEMATIC EPILOGUE (TIMELINE STABILIZATION & POWER-DOWN) */}
@@ -148,7 +136,7 @@ export default function App() {
         <TemporalBackground />
 
         {/* 05 & 06: Living 2.5D Cinematic Loki Character (Present across all stages) */}
-        <LokiCinematicCharacter isHeroHovered={cursorState === 'loki'} />
+        <LokiCinematicCharacter />
 
         {/* Section 28: Minimal TVA Terminal Header Navigation */}
         <TVANav
@@ -156,7 +144,7 @@ export default function App() {
           onToggleSound={handleToggleSound}
           onOpenTerminal={() => setIsTerminalOpen(true)}
           onOpenAuth={handleOpenAuth}
-          onSetCursor={setCursorState}
+          onSetCursor={handleSetCursor}
         />
 
         {/* MAIN BODY SCENES (Section 20 & 69: Cinematic Scene Flow) */}
@@ -164,7 +152,7 @@ export default function App() {
           {/* Scene 01: Hero (Poster Composition + 3D The Variant Centerpiece + TVA Clock) */}
           <Hero
             eventData={eventData}
-            onSetCursor={setCursorState}
+            onSetCursor={handleSetCursor}
             onRegisterClick={scrollToRegistration}
             onTriggerGlitch={triggerGlitchMode}
           />
@@ -172,69 +160,69 @@ export default function App() {
           {/* Quick-Scan Verified Case Parameters */}
           <EventDetails
             eventData={eventData}
-            onSetCursor={setCursorState}
+            onSetCursor={handleSetCursor}
           />
 
           {/* Scene 02: Case File 26229 (TVA Physical Evidence Dossier & Redactions) */}
           <CaseBriefing
             eventData={eventData}
-            onSetCursor={setCursorState}
+            onSetCursor={handleSetCursor}
           />
 
           {/* Scene 03: Sacred Timeline & Timeline Collision Tracks */}
           <TimelineBranches
             branches={eventData.branches}
-            onSetCursor={setCursorState}
+            onSetCursor={handleSetCursor}
           />
 
           {/* Live Multiverse Map (Temporal Radar) */}
           <MultiverseMap
-            onSetCursor={setCursorState}
+            onSetCursor={handleSetCursor}
           />
 
           {/* Scene 04: The Infinity Timeline (Six Primordial Relics Orbiting Singularity) */}
           <InfinityStones
-            onSetCursor={setCursorState}
+            onSetCursor={handleSetCursor}
           />
 
           {/* Scene 05: Variant Capabilities (Tactical Amenities & Bounties) */}
           <Highlights
             highlights={eventData.highlights}
-            onSetCursor={setCursorState}
+            onSetCursor={handleSetCursor}
           />
 
           {/* Scene 06: Temporal Sequence (36-Hour Chronology) */}
           <Schedule
             schedule={eventData.schedule}
-            onSetCursor={setCursorState}
+            onSetCursor={handleSetCursor}
           />
 
           {/* Loom Diagnostics & Oscilloscope Telemetry */}
           <SystemStatus
-            onSetCursor={setCursorState}
+            onSetCursor={handleSetCursor}
           />
 
           {/* Authorized Personnel (Patrons, Mentors, Judges) */}
           <Personnel
             personnel={eventData.personnel}
-            onSetCursor={setCursorState}
+            onSetCursor={handleSetCursor}
           />
 
           {/* Registration Climax & Variant Pass Generator */}
           <Registration
             eventData={eventData}
-            onSetCursor={setCursorState}
+            onSetCursor={handleSetCursor}
             onTriggerEpilogue={() => setIsEpilogueOpen(true)}
           />
 
           {/* Scene 07: Open a Temporal Channel (Communications Hub & Unfolding Strings) */}
           <TemporalContact
-            onSetCursor={setCursorState}
+            onSetCursor={handleSetCursor}
           />
         </main>
 
         {/* Bureaucratic Archival Footer (Branch Convergence & Ending Movie Scene) */}
-        <Footer onSetCursor={setCursorState} />
+        <Footer onSetCursor={handleSetCursor} />
 
         {/* Secret Easter Egg TemPad Terminal Modal */}
         <EasterEggs
@@ -248,7 +236,7 @@ export default function App() {
         <TVAClockAgent
           onOpenAuth={handleOpenAuth}
           onTriggerGlitch={triggerGlitchMode}
-          onSetCursor={setCursorState}
+          onSetCursor={handleSetCursor}
         />
       </div>
     </div>

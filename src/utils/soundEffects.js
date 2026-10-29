@@ -60,7 +60,6 @@ if (typeof window !== "undefined") {
       if (ctx && ctx.state === "suspended") {
         ctx.resume();
       }
-      startAmbientAudio();
     }
     window.removeEventListener("click", unlockAudio);
     window.removeEventListener("keydown", unlockAudio);
@@ -163,26 +162,8 @@ export function playHoverTick() {
 
 // TVA Button Click: Short confirmation pulse
 export function playClickSound() {
-  if (!isAudioEnabled) return;
-  try {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(960, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(320, ctx.currentTime + 0.06);
-
-    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start();
-    osc.stop(ctx.currentTime + 0.06);
-  } catch {}
+  // Sound when clicked removed per user request
+  return;
 }
 
 // Clock mechanical tick
@@ -579,5 +560,139 @@ export function playBranchLockSound() {
     osc.stop(now + 0.25);
   } catch {}
 }
+
+// ----------------------------------------------------
+// LOKI INTRO CINEMATIC TYPOGRAPHY SOUND EFFECTS
+// ----------------------------------------------------
+let lastFontTickTime = 0;
+
+// Rapid tactile font switch tick (subtle teleprinter / quantum mechanical click)
+export function playLokiFontTick() {
+  if (!isAudioEnabled) return;
+  const nowMs = Date.now();
+  if (nowMs - lastFontTickTime < 45) return; // Throttle to maintain pristine sound texture
+  lastFontTickTime = nowMs;
+
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+
+    // High subtle click with rapid pitch decay
+    osc.type = "sine";
+    const baseFreq = 1600 + Math.random() * 800;
+    osc.frequency.setValueAtTime(baseFreq, now);
+    osc.frequency.exponentialRampToValueAtTime(300, now + 0.018);
+
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(1400, now);
+    filter.Q.setValueAtTime(3.0, now);
+
+    gain.gain.setValueAtTime(0.022, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.02);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.022);
+  } catch {}
+}
+
+// Resonant Majestic Chord Swell when Loki × TVA Logo Snaps into Place
+export function playLokiTitleLockChord() {
+  if (!isAudioEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    // 1. Deep Sub-Bass Rumble
+    const subOsc = ctx.createOscillator();
+    const subGain = ctx.createGain();
+    subOsc.type = "sine";
+    subOsc.frequency.setValueAtTime(95, now);
+    subOsc.frequency.exponentialRampToValueAtTime(45, now + 1.2);
+    subGain.gain.setValueAtTime(0.16, now);
+    subGain.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+    subOsc.connect(subGain);
+    subGain.connect(ctx.destination);
+    subOsc.start(now);
+    subOsc.stop(now + 1.8);
+
+    // 2. Majestic D-minor cinematic chord (D2, A2, F3, A3, D4)
+    const chordFreqs = [73.42, 110.0, 174.61, 220.0, 293.66, 440.0];
+    chordFreqs.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = idx % 2 === 0 ? "sawtooth" : "triangle";
+      osc.frequency.setValueAtTime(freq, now);
+
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(180, now);
+      filter.frequency.exponentialRampToValueAtTime(1800, now + 0.45);
+      filter.frequency.exponentialRampToValueAtTime(260, now + 2.2);
+
+      const maxGain = 0.045 / (idx * 0.5 + 1);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(maxGain, now + 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 2.2);
+    });
+
+    // 3. High Crystalline Time Shimmer (Lyre harmonics)
+    const bellOsc = ctx.createOscillator();
+    const bellGain = ctx.createGain();
+    bellOsc.type = "sine";
+    bellOsc.frequency.setValueAtTime(1760, now + 0.05); // A6
+    bellGain.gain.setValueAtTime(0.001, now);
+    bellGain.gain.linearRampToValueAtTime(0.035, now + 0.08);
+    bellGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.4);
+    bellOsc.connect(bellGain);
+    bellGain.connect(ctx.destination);
+    bellOsc.start(now + 0.05);
+    bellOsc.stop(now + 1.4);
+  } catch {}
+}
+
+// High-Tech Glass Hover Sound for the Gateway Button
+export function playLokiButtonHover() {
+  if (!isAudioEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(784, now); // G5
+    osc.frequency.exponentialRampToValueAtTime(1175, now + 0.08); // D6
+
+    gain.gain.setValueAtTime(0.04, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.12);
+  } catch {}
+}
+
 
 
